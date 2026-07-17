@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "okelcor-admin-app",
+    "name": "Okelcor Admin",
     "slug": "okelcor-admin-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.okelcor.adminapp"
     },
     "android": {
+      "package": "com.okelcor.adminapp",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#E85C1A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -29,6 +31,12 @@
           "color": "#E85C1A"
         }
       ]
-    ]
+    ],
+    "owner": "okelcor",
+    "extra": {
+      "eas": {
+        "projectId": "865b1b0c-3313-473b-9264-788827b70892"
+      }
+    }
   }
 }
