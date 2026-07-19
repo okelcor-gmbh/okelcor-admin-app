@@ -13,6 +13,7 @@ export type AdminUser = {
   role: string;
   role_label?: string;
   permissions: string[];
+  available_for_chat?: boolean;
 };
 
 /** POST /admin/login response — branches on which of these two shapes comes back */
@@ -183,4 +184,31 @@ export type SecuritySummary = {
     description?: string;
     created_at: string;
   }[];
+};
+
+// ── Live Chat ─────────────────────────────────────────────────────────────────
+
+export type ChatSessionStatus = "pending" | "active" | "closed";
+
+export type ChatMessage = {
+  id: number;
+  session_id?: number;
+  sender_type: "customer" | "admin";
+  sender_id?: number;
+  body: string;
+  created_at: string;
+};
+
+export type ChatSessionSummary = {
+  id: number;
+  status: ChatSessionStatus;
+  customer_id: number;
+  customer_name: string;
+  admin_id: number | null;
+  created_at: string;
+  last_message_at: string | null;
+};
+
+export type ChatSessionFull = ChatSessionSummary & {
+  messages: ChatMessage[];
 };

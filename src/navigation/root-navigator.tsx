@@ -1,10 +1,15 @@
 import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, useColorScheme } from "react-native";
 import { useAuth } from "../context/auth-context";
 import AuthStackNavigator from "./auth-stack";
 import MainTabs from "./main-tabs";
+import ChatThreadScreen from "../screens/chat/ChatThreadScreen";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { navigationRef } from "./navigationRef";
+import type { RootStackParamList } from "./types";
+
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 // React Navigation's own chrome (headers, tab bar) has a separate theme
 // system from NativeWind's CSS variables — has to be wired independently,
@@ -33,7 +38,14 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer ref={navigationRef} theme={scheme === "dark" ? darkNavTheme : lightNavTheme}>
-      {status === "signedIn" ? <MainTabs /> : <AuthStackNavigator />}
+      {status === "signedIn" ? (
+        <RootStack.Navigator>
+          <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
+          <RootStack.Screen name="ChatThread" component={ChatThreadScreen} options={{ title: "Live Chat" }} />
+        </RootStack.Navigator>
+      ) : (
+        <AuthStackNavigator />
+      )}
     </NavigationContainer>
   );
 }

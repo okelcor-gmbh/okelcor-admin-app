@@ -14,6 +14,8 @@ type AuthContextValue = {
   /** Persists the token (SecureStore + in-memory client cache) and marks signed in. */
   signIn: (token: string, user: AdminUser) => Promise<void>;
   signOut: () => Promise<void>;
+  /** Patches fields on the current user without a full /admin/me refetch (e.g. after toggling presence). */
+  updateUser: (patch: Partial<AdminUser>) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -34,6 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthToken(token);
     setUser(nextUser);
     setStatus("signedIn");
+  }, []);
+
+  const updateUser = useCallback((patch: Partial<AdminUser>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : prev));
   }, []);
 
   // Any 401 from any API call anywhere in the app triggers a global sign-out.
@@ -64,7 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const value = useMemo(() => ({ status, user, signIn, signOut }), [status, user, signIn, signOut]);
+  const value = useMemo(
+    () => ({ status, user, signIn, signOut, updateUser }),
+    [status, user, signIn, signOut, updateUser]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

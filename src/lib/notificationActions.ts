@@ -17,6 +17,7 @@ import { resolveActionUrl } from "./actionUrl";
 export const NOTIFICATION_CATEGORY = {
   CUSTOMER_REPLY: "customer_reply",
   REVISION_PENDING: "revision_pending",
+  LIVE_CHAT_REQUEST: "live_chat_request",
 } as const;
 
 export async function registerNotificationCategories() {
@@ -33,6 +34,13 @@ export async function registerNotificationCategories() {
   await Notifications.setNotificationCategoryAsync(NOTIFICATION_CATEGORY.REVISION_PENDING, [
     { identifier: "approve", buttonTitle: "Approve", options: { opensAppToForeground: true } },
     { identifier: "decline", buttonTitle: "Decline", options: { opensAppToForeground: true, isDestructive: true } },
+    { identifier: "view", buttonTitle: "View", options: { opensAppToForeground: true } },
+  ]);
+
+  // Default tap already resolves action_url via goToActionUrl() below — this
+  // category only exists to label the notification's button "View" instead
+  // of relying on the bare default tap.
+  await Notifications.setNotificationCategoryAsync(NOTIFICATION_CATEGORY.LIVE_CHAT_REQUEST, [
     { identifier: "view", buttonTitle: "View", options: { opensAppToForeground: true } },
   ]);
 }

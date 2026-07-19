@@ -4,11 +4,14 @@ import { useNavigation } from "@react-navigation/native";
 import { fetchDashboard } from "../../api/dashboard";
 import { fetchInsights } from "../../api/insights";
 import { fetchOrders } from "../../api/orders";
+import { fetchChatQueue } from "../../api/chat";
+import { useAuth } from "../../context/auth-context";
 import { useUnreadNotificationsCount } from "../../hooks/useUnreadNotificationsCount";
 import { useUnreadInboxCount } from "../../hooks/useUnreadInboxCount";
 import Card from "../../components/ui/Card";
 import SeverityPill from "../../components/ui/SeverityPill";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import PresenceToggle from "../../components/ui/PresenceToggle";
 import { revenueDeltaPct } from "../../lib/revenueDelta";
 import { decodeHtmlEntities } from "../../lib/decodeHtmlEntities";
 
@@ -26,6 +29,7 @@ export default function TodayScreen() {
   // (OrdersTab -> OrderDetail) doesn't type-check cleanly against this
   // screen's own strict tab-navigation prop, same as resolveActionUrl().
   const navigation = useNavigation() as { navigate: (name: string, params?: object) => void };
+  const { user } = useAuth();
   const unreadNotifications = useUnreadNotificationsCount();
   const unreadInbox = useUnreadInboxCount();
 
@@ -36,6 +40,14 @@ export default function TodayScreen() {
   });
   const { data: insightsRes } = useQuery({ queryKey: ["insights"], queryFn: fetchInsights, refetchInterval: 120_000 });
   const { data: ordersRes } = useQuery({ queryKey: ["orders", ""], queryFn: () => fetchOrders(), refetchInterval: 60_000 });
+  // ~20s poll as a fallback alongside the live socket (useChatQueueChannel,
+  // mounted app-wide in main-tabs.tsx) — chat is urgent enough to warrant a
+  // shorter interval than the rest of Today's data.
+  const { data: chatQueueRes } = useQuery({
+    queryKey: ["chatQueue"],
+    queryFn: () => fetchChatQueue(),
+    refetchInterval: 20_000,
+  });
 
   if (loadingDashboard) return <LoadingSpinner />;
 
@@ -49,12 +61,48 @@ export default function TodayScreen() {
   // fetch. Revisit if/when the list endpoint exposes it.
   const needsAction = orders.filter((o) => o.payment_status === "pending" && o.payment_method === "bank_transfer");
 
+  const chatSessions = chatQueueRes?.data ?? [];
+  const pendingChats = chatSessions.filter((s) => s.status === "pending");
+  const myActiveChats = chatSessions.filter((s) => s.status === "active" && s.admin_id === user?.id);
+
   return (
     <ScrollView className="flex-1 bg-surface" contentContainerClassName="gap-4 p-4">
       <View>
         <Text className="text-[13px] font-semibold uppercase tracking-wide text-muted">{todayLabel()}</Text>
         <Text className="text-2xl font-bold text-ink">Today</Text>
       </View>
+
+      <PresenceToggle />
+
+      {(pendingChats.length > 0 || myActiveChats.length > 0) && (
+        <View>
+          <Text className="mb-2 text-sm font-bold text-ink">Live Chat</Text>
+          <View className="gap-2">
+            {pendingChats.map((s) => (
+              <Pressable key={s.id} onPress={() => navigation.navigate("ChatThread", { sessionId: s.id })}>
+                <Card className="flex-row items-center justify-between p-3.5">
+                  <View>
+                    <Text className="text-[14px] font-semibold text-ink">{s.customer_name}</Text>
+                    <Text className="text-xs text-muted">Waiting</Text>
+                  </View>
+                  <Text className="text-[13px] font-bold text-accent">Accept →</Text>
+                </Card>
+              </Pressable>
+            ))}
+            {myActiveChats.map((s) => (
+              <Pressable key={s.id} onPress={() => navigation.navigate("ChatThread", { sessionId: s.id })}>
+                <Card className="flex-row items-center justify-between p-3.5">
+                  <View>
+                    <Text className="text-[14px] font-semibold text-ink">{s.customer_name}</Text>
+                    <Text className="text-xs text-muted">Active</Text>
+                  </View>
+                  <Text className="text-[13px] font-bold text-accent">Open →</Text>
+                </Card>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
 
       {insights.length > 0 && (
         <View className="gap-2">

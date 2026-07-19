@@ -4,7 +4,7 @@
  * AdminApiError) so the two clients read the same way, even though types
  * are ported rather than shared — see the mobile-app plan for why.
  */
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 export class AdminUnauthorizedError extends Error {
   constructor() {
@@ -30,6 +30,12 @@ let authToken: string | null = null;
 
 export function setAuthToken(token: string | null) {
   authToken = token;
+}
+
+// Read-only access for callers outside the fetch pipeline (the Pusher
+// channel authorizer needs to attach the same bearer token by hand).
+export function getAuthToken(): string | null {
+  return authToken;
 }
 
 // AuthContext registers its logout() here on mount, so a 401 from anywhere
