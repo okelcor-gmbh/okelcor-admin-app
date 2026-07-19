@@ -86,11 +86,11 @@ export default function Setup2FAScreen({ route, navigation }: Props) {
           Required for every admin account. Scan this with an authenticator app (Google Authenticator, Authy, 1Password).
         </Text>
 
-        <View className="my-8 items-center rounded-2xl border border-black/[0.06] bg-white p-6">
+        <View className="my-8 items-center rounded-2xl border border-hairline/[0.06] bg-card p-6">
           <QRCode value={otpauthUri} size={200} />
         </View>
 
-        <View className="mb-6 rounded-xl border border-black/[0.06] bg-white px-4 py-3">
+        <View className="mb-6 rounded-xl border border-hairline/[0.06] bg-card px-4 py-3">
           <Text className="mb-1 text-[13px] font-semibold text-muted">Can&apos;t scan? Enter manually:</Text>
           <Text className="font-mono text-[14px] text-ink">{secret}</Text>
         </View>

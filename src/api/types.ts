@@ -134,6 +134,7 @@ export type AdminOrder = {
   currency?: string | null;
   status: string;
   payment_status?: string | null;
+  payment_method?: string | null;
   carrier?: string | null;
   tracking_number?: string | null;
   tracking_url?: string | null;
@@ -148,6 +149,10 @@ export type AdminOrderFull = AdminOrder & {
     unit_price: number;
     subtotal: number;
   }[];
+  // DOC-5 financial lock/revision — same field names as the web admin panel
+  financials_locked?: boolean | null;
+  financials_revision_required?: boolean | null;
+  financials_revision_reason?: string | null;
 };
 
 // ── Quotes ────────────────────────────────────────────────────────────────────

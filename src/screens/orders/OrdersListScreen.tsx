@@ -24,9 +24,9 @@ export default function OrdersListScreen({ navigation }: Props) {
 
   return (
     <View className="flex-1 bg-surface">
-      <View className="border-b border-black/[0.06] bg-white px-4 py-3">
+      <View className="border-b border-hairline/[0.06] bg-card px-4 py-3">
         <TextInput
-          className="rounded-xl border border-black/[0.1] bg-surface px-4 py-2.5 text-[15px] text-ink"
+          className="rounded-xl border border-hairline/[0.1] bg-surface px-4 py-2.5 text-[15px] text-ink"
           placeholder="Search by order ref, customer…"
           placeholderTextColor="#9ca3af"
           value={query}

@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Base (light) values for the app's semantic color tokens — these are the
+ * fallback if the root `vars()` override in App.tsx doesn't apply for some
+ * reason. The real light/dark switching happens there: NativeWind resolves
+ * `@media (prefers-color-scheme: dark)` in this file statically at bundle
+ * time, not live, so it can't react to the OS appearance changing while the
+ * app is running — confirmed by testing against the simulator's live
+ * appearance toggle. `vars()` + `useColorScheme()` at the root, which *is*
+ * reactive, is the actual mechanism. See App.tsx.
+ */
+:root {
+  --color-surface: 240 242 245; /* #f0f2f5 */
+  --color-card: 255 255 255; /* #ffffff */
+  --color-ink: 26 26 26; /* #1a1a1a */
+  --color-muted: 92 94 98; /* #5c5e62 */
+  --color-faint: 156 163 175; /* #9ca3af */
+  --color-hairline: 0 0 0; /* combined with a low alpha modifier at each call site */
+  --color-accent-tint: 255 241 236; /* #fff1ec */
+  --color-severity-positive-tint: 236 253 245; /* #ecfdf5 */
+  --color-severity-info-tint: 255 241 236;
+  --color-severity-warning-tint: 255 251 235; /* #fffbeb */
+  --color-severity-critical-tint: 254 242 242; /* #fef2f2 */
+}

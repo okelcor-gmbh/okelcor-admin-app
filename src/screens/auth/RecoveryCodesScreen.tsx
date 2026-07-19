@@ -18,11 +18,11 @@ export default function RecoveryCodesScreen({ route }: Props) {
         safe. Each one can be used once, in place of your authenticator app, if you lose access to it.
       </Text>
 
-      <ScrollView className="my-8 max-h-80 rounded-2xl border border-black/[0.06] bg-white">
+      <ScrollView className="my-8 max-h-80 rounded-2xl border border-hairline/[0.06] bg-card">
         {codes.map((c, i) => (
           <View
             key={c}
-            className={`px-5 py-3.5 ${i > 0 ? "border-t border-black/[0.04]" : ""}`}
+            className={`px-5 py-3.5 ${i > 0 ? "border-t border-hairline/[0.04]" : ""}`}
           >
             <Text className="text-center font-mono text-[16px] tracking-wider text-ink">{c}</Text>
           </View>

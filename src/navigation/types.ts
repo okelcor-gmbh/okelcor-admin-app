@@ -19,6 +19,7 @@ export type OrdersStackParamList = {
 };
 
 export type MainTabParamList = {
+  TodayTab: undefined;
   NotificationsTab: undefined;
   InsightsTab: undefined;
   InboxTab: undefined;

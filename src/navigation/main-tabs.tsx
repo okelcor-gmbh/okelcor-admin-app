@@ -1,11 +1,16 @@
+import { StyleSheet, useColorScheme } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Bell, Sparkles, Inbox, Package, FileText, ShieldAlert, Settings } from "lucide-react-native";
+import { BlurView } from "expo-blur";
+import { Home, Bell, Sparkles, Inbox, Package, FileText, ShieldAlert } from "lucide-react-native";
 import type { MainTabParamList, InboxStackParamList, OrdersStackParamList } from "./types";
 import { useAuth } from "../context/auth-context";
 import { usePushRegistration } from "../hooks/usePushRegistration";
 import { useUnreadNotificationsCount } from "../hooks/useUnreadNotificationsCount";
+import { useAppBadge } from "../hooks/useAppBadge";
+import SettingsHeaderButton from "../components/SettingsHeaderButton";
 
+import TodayScreen from "../screens/today/TodayScreen";
 import NotificationsListScreen from "../screens/notifications/NotificationsListScreen";
 import InsightsListScreen from "../screens/insights/InsightsListScreen";
 import InboxListScreen from "../screens/inbox/InboxListScreen";
@@ -23,7 +28,11 @@ const OrdersStack = createNativeStackNavigator<OrdersStackParamList>();
 function InboxStackNavigator() {
   return (
     <InboxStack.Navigator>
-      <InboxStack.Screen name="InboxList" component={InboxListScreen} options={{ title: "Inbox" }} />
+      <InboxStack.Screen
+        name="InboxList"
+        component={InboxListScreen}
+        options={{ title: "Inbox", headerRight: () => <SettingsHeaderButton /> }}
+      />
       <InboxStack.Screen
         name="ThreadDetail"
         component={ThreadDetailScreen}
@@ -36,7 +45,11 @@ function InboxStackNavigator() {
 function OrdersStackNavigator() {
   return (
     <OrdersStack.Navigator>
-      <OrdersStack.Screen name="OrdersList" component={OrdersListScreen} options={{ title: "Orders" }} />
+      <OrdersStack.Screen
+        name="OrdersList"
+        component={OrdersListScreen}
+        options={{ title: "Orders", headerRight: () => <SettingsHeaderButton /> }}
+      />
       <OrdersStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ title: "Order" }} />
     </OrdersStack.Navigator>
   );
@@ -44,12 +57,31 @@ function OrdersStackNavigator() {
 
 export default function MainTabs() {
   const { user } = useAuth();
+  const scheme = useColorScheme();
   const canViewSecurity = user?.permissions.includes("security.view") ?? false;
   const unreadCount = useUnreadNotificationsCount();
   usePushRegistration(true);
+  useAppBadge();
 
   return (
-    <Tab.Navigator screenOptions={{ tabBarActiveTintColor: "#E85C1A" }}>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: "#E85C1A",
+        tabBarInactiveTintColor: scheme === "dark" ? "#71717a" : "#9ca3af",
+        tabBarLabelStyle: { fontSize: 9, fontWeight: "600", letterSpacing: -0.2 },
+        tabBarItemStyle: { paddingHorizontal: 0 },
+        tabBarStyle: { borderTopWidth: 0, elevation: 0 },
+        tabBarBackground: () => (
+          <BlurView intensity={92} tint={scheme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFill} />
+        ),
+        headerRight: () => <SettingsHeaderButton />,
+      }}
+    >
+      <Tab.Screen
+        name="TodayTab"
+        component={TodayScreen}
+        options={{ title: "Today", tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }}
+      />
       <Tab.Screen
         name="NotificationsTab"
         component={NotificationsListScreen}
@@ -86,10 +118,12 @@ export default function MainTabs() {
           options={{ title: "Security", tabBarIcon: ({ color, size }) => <ShieldAlert color={color} size={size} /> }}
         />
       )}
+      {/* Settings has no tab bar button — reached via the header icon on every other tab — kept
+          registered here so navigation.navigate("SettingsTab") still resolves. */}
       <Tab.Screen
         name="SettingsTab"
         component={SettingsScreen}
-        options={{ title: "Settings", tabBarIcon: ({ color, size }) => <Settings color={color} size={size} /> }}
+        options={{ title: "Settings", headerRight: () => null, tabBarButton: () => null }}
       />
     </Tab.Navigator>
   );

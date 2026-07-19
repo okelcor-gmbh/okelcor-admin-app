@@ -38,7 +38,7 @@ export default function SecurityGlanceScreen() {
           <Text className="text-sm text-muted">No recent events.</Text>
         ) : (
           recentEvents.slice(0, 10).map((e, idx) => (
-            <View key={e.id} className={`py-2 ${idx > 0 ? "border-t border-black/[0.04]" : ""}`}>
+            <View key={e.id} className={`py-2 ${idx > 0 ? "border-t border-hairline/[0.04]" : ""}`}>
               <Text className="text-sm text-ink">{e.description ?? e.type}</Text>
             </View>
           ))

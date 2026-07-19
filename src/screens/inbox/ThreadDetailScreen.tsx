@@ -80,7 +80,7 @@ export default function ThreadDetailScreen({ route }: Props) {
         renderItem={({ item }) => <MessageBubble message={item} />}
       />
 
-      <View className="border-t border-black/[0.06] bg-white px-3 py-3">
+      <View className="border-t border-hairline/[0.06] bg-card px-3 py-3">
         {attachment && (
           <View className="mb-2 flex-row items-center gap-2 self-start rounded-full bg-surface px-3 py-1.5">
             <Text className="text-xs text-muted" numberOfLines={1}>
@@ -100,7 +100,7 @@ export default function ThreadDetailScreen({ route }: Props) {
             <Paperclip size={16} color="#5c5e62" />
           </Pressable>
           <TextInput
-            className="max-h-28 flex-1 rounded-2xl border border-black/[0.1] bg-white px-4 py-2.5 text-[15px] text-ink"
+            className="max-h-28 flex-1 rounded-2xl border border-hairline/[0.1] bg-card px-4 py-2.5 text-[15px] text-ink"
             placeholder="Reply…"
             placeholderTextColor="#9ca3af"
             value={body}
@@ -127,7 +127,7 @@ function MessageBubble({ message }: { message: Communication }) {
   return (
     <View
       className={`max-w-[85%] rounded-2xl p-3.5 ${
-        isOutbound ? "self-end bg-accent-tint" : "self-start border border-black/[0.06] bg-white"
+        isOutbound ? "self-end bg-accent-tint" : "self-start border border-hairline/[0.06] bg-card"
       }`}
     >
       {message.subject && <Text className="mb-1 text-xs font-semibold text-muted">{message.subject}</Text>}
