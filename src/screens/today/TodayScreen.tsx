@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { fetchDashboard } from "../../api/dashboard";
 import { fetchInsights } from "../../api/insights";
 import { fetchOrders } from "../../api/orders";
-import { fetchChatQueue } from "../../api/chat";
+import { fetchCrispConversations } from "../../api/crisp";
 import { fetchQuoteSummary } from "../../api/quotes";
 import { fetchLogisticsSummary } from "../../api/logistics";
 import { fetchSecuritySummary } from "../../api/security";
@@ -44,12 +44,11 @@ export default function TodayScreen() {
   });
   const { data: insightsRes } = useQuery({ queryKey: ["insights"], queryFn: fetchInsights, refetchInterval: 120_000 });
   const { data: ordersRes } = useQuery({ queryKey: ["orders", ""], queryFn: () => fetchOrders(), refetchInterval: 60_000 });
-  // ~20s poll as a fallback alongside the live socket (useChatQueueChannel,
-  // mounted app-wide in main-tabs.tsx) — chat is urgent enough to warrant a
-  // shorter interval than the rest of Today's data.
-  const { data: chatQueueRes } = useQuery({
-    queryKey: ["chatQueue"],
-    queryFn: () => fetchChatQueue(),
+  // Crisp has no realtime push on the free plan — poll. Chat is urgent
+  // enough to warrant a shorter interval than the rest of Today's data.
+  const { data: crispRes } = useQuery({
+    queryKey: ["crispConversations"],
+    queryFn: () => fetchCrispConversations(),
     refetchInterval: 20_000,
   });
   const { data: quoteSummaryRes } = useQuery({
@@ -83,9 +82,10 @@ export default function TodayScreen() {
   // fetch. Revisit if/when the list endpoint exposes it.
   const needsAction = orders.filter((o) => o.payment_status === "pending" && o.payment_method === "bank_transfer");
 
-  const chatSessions = chatQueueRes?.data ?? [];
-  const pendingChats = chatSessions.filter((s) => s.status === "pending");
-  const myActiveChats = chatSessions.filter((s) => s.status === "active" && s.admin_id === user?.id);
+  // Crisp is a shared inbox, no per-admin claiming — anyone can open and
+  // reply to any open conversation.
+  const openChats = (crispRes?.data ?? []).filter((c) => c.state !== "resolved");
+  const unreadChats = openChats.reduce((sum, c) => sum + c.unread.operator, 0);
 
   const pipeline = quoteSummaryRes?.data;
   const ops = logisticsRes?.data.summary;
@@ -105,35 +105,23 @@ export default function TodayScreen() {
 
       <PresenceToggle />
 
-      {(pendingChats.length > 0 || myActiveChats.length > 0) && (
-        <View>
-          <Text className="mb-2 text-sm font-bold text-ink">Live Chat</Text>
-          <View className="gap-2">
-            {pendingChats.map((s) => (
-              <Pressable key={s.id} onPress={() => navigation.navigate("ChatThread", { sessionId: s.id })}>
-                <Card className="flex-row items-center justify-between p-3.5">
-                  <View>
-                    <Text className="text-[14px] font-semibold text-ink">{s.customer_name}</Text>
-                    <Text className="text-xs text-muted">Waiting</Text>
-                  </View>
-                  <Text className="text-[13px] font-bold text-accent">Accept →</Text>
-                </Card>
-              </Pressable>
-            ))}
-            {myActiveChats.map((s) => (
-              <Pressable key={s.id} onPress={() => navigation.navigate("ChatThread", { sessionId: s.id })}>
-                <Card className="flex-row items-center justify-between p-3.5">
-                  <View>
-                    <Text className="text-[14px] font-semibold text-ink">{s.customer_name}</Text>
-                    <Text className="text-xs text-muted">Active</Text>
-                  </View>
-                  <Text className="text-[13px] font-bold text-accent">Open →</Text>
-                </Card>
-              </Pressable>
-            ))}
+      <Pressable onPress={() => navigation.navigate("ChatsList")}>
+        <Card className="flex-row items-center justify-between p-4">
+          <View>
+            <Text className="text-[14px] font-semibold text-ink">Live Chat</Text>
+            <Text className="text-xs text-muted">
+              {openChats.length > 0 ? `${openChats.length} open` : "No open conversations"}
+            </Text>
           </View>
-        </View>
-      )}
+          {unreadChats > 0 ? (
+            <View className="h-6 min-w-6 items-center justify-center rounded-full bg-accent px-1.5">
+              <Text className="text-[12px] font-bold text-white">{unreadChats}</Text>
+            </View>
+          ) : (
+            <Text className="text-[13px] font-bold text-accent">View →</Text>
+          )}
+        </Card>
+      </Pressable>
 
       {canViewSecurity && criticalEventsToday > 0 && (
         <Pressable onPress={() => navigation.navigate("SecurityTab")}>

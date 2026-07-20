@@ -4,6 +4,7 @@ import { View, useColorScheme } from "react-native";
 import { useAuth } from "../context/auth-context";
 import AuthStackNavigator from "./auth-stack";
 import MainTabs from "./main-tabs";
+import ChatsListScreen from "../screens/chat/ChatsListScreen";
 import ChatThreadScreen from "../screens/chat/ChatThreadScreen";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { navigationRef } from "./navigationRef";
@@ -41,6 +42,7 @@ export default function RootNavigator() {
       {status === "signedIn" ? (
         <RootStack.Navigator>
           <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
+          <RootStack.Screen name="ChatsList" component={ChatsListScreen} options={{ title: "Live Chat" }} />
           <RootStack.Screen name="ChatThread" component={ChatThreadScreen} options={{ title: "Live Chat" }} />
         </RootStack.Navigator>
       ) : (

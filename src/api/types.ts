@@ -261,29 +261,35 @@ export type SecuritySummary = {
   }[];
 };
 
-// ── Live Chat ─────────────────────────────────────────────────────────────────
+// ── Live Chat (Crisp) ─────────────────────────────────────────────────────────
+// Shapes match Crisp's own API exactly — the Laravel proxy passes `data`
+// through unreshaped, confirmed against okelcor-website's working Crisp
+// admin inbox (components/admin/chats-inbox.tsx), not guessed.
 
-export type ChatSessionStatus = "pending" | "active" | "closed";
+export type CrispConversationState = "pending" | "unresolved" | "resolved";
 
-export type ChatMessage = {
-  id: number;
-  session_id?: number;
-  sender_type: "customer" | "admin";
-  sender_id?: number;
-  body: string;
-  created_at: string;
+export type CrispConversation = {
+  session_id: string;
+  status: number;
+  state: CrispConversationState;
+  created_at: number; // epoch ms
+  updated_at: number; // epoch ms
+  last_message: string;
+  meta: {
+    nickname: string;
+    email: string | null;
+    avatar: string | null;
+    city?: string;
+    country?: string;
+  };
+  unread: { operator: number; visitor: number };
 };
 
-export type ChatSessionSummary = {
-  id: number;
-  status: ChatSessionStatus;
-  customer_id: number;
-  customer_name: string;
-  admin_id: number | null;
-  created_at: string;
-  last_message_at: string | null;
-};
-
-export type ChatSessionFull = ChatSessionSummary & {
-  messages: ChatMessage[];
+export type CrispMessage = {
+  session_id: string;
+  type: string; // filter on "text"
+  content: string;
+  from: "user" | "operator";
+  timestamp: number; // epoch ms
+  user: { nickname: string; avatar: string | null; type: "visitor" | "operator" };
 };

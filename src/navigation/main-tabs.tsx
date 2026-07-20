@@ -8,7 +8,6 @@ import { useAuth } from "../context/auth-context";
 import { usePushRegistration } from "../hooks/usePushRegistration";
 import { useUnreadNotificationsCount } from "../hooks/useUnreadNotificationsCount";
 import { useAppBadge } from "../hooks/useAppBadge";
-import { useChatQueueChannel } from "../hooks/useChatQueueChannel";
 import SettingsHeaderButton from "../components/SettingsHeaderButton";
 
 import TodayScreen from "../screens/today/TodayScreen";
@@ -78,7 +77,6 @@ export default function MainTabs() {
   const unreadCount = useUnreadNotificationsCount();
   usePushRegistration(true);
   useAppBadge();
-  useChatQueueChannel();
 
   return (
     <Tab.Navigator

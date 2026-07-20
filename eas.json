@@ -10,17 +10,13 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.okelcor.com/api/v1",
-        "EXPO_PUBLIC_PUSHER_KEY": "83563c85ea9210750a67",
-        "EXPO_PUBLIC_PUSHER_CLUSTER": "eu"
+        "EXPO_PUBLIC_API_URL": "https://api.okelcor.com/api/v1"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.okelcor.com/api/v1",
-        "EXPO_PUBLIC_PUSHER_KEY": "83563c85ea9210750a67",
-        "EXPO_PUBLIC_PUSHER_CLUSTER": "eu"
+        "EXPO_PUBLIC_API_URL": "https://api.okelcor.com/api/v1"
       }
     }
   },

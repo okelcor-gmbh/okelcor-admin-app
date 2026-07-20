@@ -1,7 +1,6 @@
 type MinimalNavigation = { navigate: (name: string, params?: object) => void };
 
 const ORDER_RE = /^\/admin\/orders\/(\d+)/;
-const CHAT_SESSION_RE = /^\/admin\/chat-sessions\/(\d+)/;
 
 /**
  * Maps a web-admin-style action_url to a native screen where one exists.
@@ -14,11 +13,5 @@ export function resolveActionUrl(actionUrl: string | null | undefined, navigatio
   const orderMatch = actionUrl.match(ORDER_RE);
   if (orderMatch) {
     navigation.navigate("OrdersTab", { screen: "OrderDetail", params: { orderId: Number(orderMatch[1]) } });
-    return;
-  }
-
-  const chatMatch = actionUrl.match(CHAT_SESSION_RE);
-  if (chatMatch) {
-    navigation.navigate("ChatThread", { sessionId: Number(chatMatch[1]) });
   }
 }
