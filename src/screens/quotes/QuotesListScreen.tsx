@@ -1,5 +1,6 @@
 import { Alert, FlatList, Pressable, Text, View } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
 import { fetchQuoteRequests } from "../../api/quotes";
 import { updateQuoteStatus } from "../../api/quickActions";
@@ -19,6 +20,7 @@ const NEXT_STATUS: Record<string, string> = {
 
 export default function QuotesListScreen() {
   const queryClient = useQueryClient();
+  const navigation = useNavigation() as { navigate: (name: string, params?: object) => void };
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["quote-requests"],
@@ -51,11 +53,13 @@ export default function QuotesListScreen() {
       onRefresh={refetch}
       ListEmptyComponent={<EmptyState message="No quote requests." />}
       renderItem={({ item }) => (
-        <QuoteRow
-          quote={item}
-          onAdvance={(status) => advance.mutate({ id: item.id, status })}
-          advancing={advance.isPending}
-        />
+        <Pressable onPress={() => navigation.navigate("QuoteDetail", { quoteId: item.id })}>
+          <QuoteRow
+            quote={item}
+            onAdvance={(status) => advance.mutate({ id: item.id, status })}
+            advancing={advance.isPending}
+          />
+        </Pressable>
       )}
     />
   );

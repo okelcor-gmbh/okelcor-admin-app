@@ -8,6 +8,7 @@ import type { InboxStackParamList } from "../../navigation/types";
 import { fetchCustomerCommunications, sendCustomerEmail } from "../../api/communications";
 import type { Communication } from "../../api/types";
 import { AdminApiError } from "../../api/client";
+import { useAuth } from "../../context/auth-context";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import EmptyState from "../../components/ui/EmptyState";
 import { timeAgo } from "../../lib/timeAgo";
@@ -19,7 +20,7 @@ type Props = NativeStackScreenProps<InboxStackParamList, "ThreadDetail">;
 type PendingAttachment = { uri: string; name: string; mimeType: string };
 
 export default function ThreadDetailScreen({ route }: Props) {
-  const { customerId } = route.params;
+  const { customerId, customerName } = route.params;
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -77,7 +78,7 @@ export default function ThreadDetailScreen({ route }: Props) {
         data={messages}
         keyExtractor={(m) => String(m.id)}
         ListEmptyComponent={<EmptyState message="No messages yet." />}
-        renderItem={({ item }) => <MessageBubble message={item} />}
+        renderItem={({ item }) => <EmailMessageCard message={item} customerName={customerName} />}
       />
 
       <View className="border-t border-hairline/[0.06] bg-card px-3 py-3">
@@ -122,22 +123,50 @@ export default function ThreadDetailScreen({ route }: Props) {
   );
 }
 
-function MessageBubble({ message }: { message: Communication }) {
+function EmailMessageCard({ message, customerName }: { message: Communication; customerName: string }) {
+  const { user } = useAuth();
   const isOutbound = message.direction === "outbound";
+  const senderName = isOutbound ? (user?.name ?? "You") : customerName;
+  const initial = senderName.trim().charAt(0).toUpperCase() || "?";
+
   return (
-    <View
-      className={`max-w-[85%] rounded-2xl p-3.5 ${
-        isOutbound ? "self-end bg-accent-tint" : "self-start border border-hairline/[0.06] bg-card"
-      }`}
-    >
-      {message.subject && <Text className="mb-1 text-xs font-semibold text-muted">{message.subject}</Text>}
-      <Text className="text-[15px] text-ink">{decodeHtmlEntities(stripHtml(message.body))}</Text>
-      {message.attachments?.map((a) => (
-        <Text key={a.url} className="mt-1 text-xs text-accent">
-          📎 {a.filename}
+    <View className="w-full rounded-2xl border border-hairline/[0.08] bg-card p-4">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-1 flex-row items-center gap-2 pr-2">
+          <View
+            className={`h-7 w-7 items-center justify-center rounded-full ${isOutbound ? "bg-accent" : "bg-surface"}`}
+          >
+            <Text className={`text-[12px] font-bold ${isOutbound ? "text-white" : "text-muted"}`}>{initial}</Text>
+          </View>
+          <Text className="flex-1 text-[14px] font-semibold text-ink" numberOfLines={1}>
+            {senderName}
+          </Text>
+        </View>
+        <Text className="text-[11px] text-faint">{timeAgo(message.created_at)}</Text>
+      </View>
+
+      {message.subject && (
+        <Text className="mt-2 text-[13px] font-medium text-muted" numberOfLines={1}>
+          {message.subject}
         </Text>
-      ))}
-      <Text className="mt-1.5 text-[11px] text-faint">{timeAgo(message.created_at)}</Text>
+      )}
+
+      <View className="my-3 h-px bg-hairline/[0.08]" />
+
+      <Text className="text-[15px] leading-[22px] text-ink">{decodeHtmlEntities(stripHtml(message.body))}</Text>
+
+      {message.attachments && message.attachments.length > 0 && (
+        <View className="mt-3 flex-row flex-wrap gap-1.5">
+          {message.attachments.map((a) => (
+            <View
+              key={a.url}
+              className="flex-row items-center gap-1.5 rounded-full border border-hairline/[0.1] bg-surface px-3 py-1.5"
+            >
+              <Text className="text-xs text-accent">📎 {a.filename}</Text>
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }

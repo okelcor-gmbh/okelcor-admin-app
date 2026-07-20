@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
+import { useRef, useState } from "react";
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Eye, EyeOff } from "lucide-react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AuthStackParamList } from "../../navigation/types";
 import { login } from "../../api/auth";
@@ -12,8 +13,10 @@ type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   const handleSubmit = async () => {
     setError(null);
@@ -55,15 +58,28 @@ export default function LoginScreen({ navigation }: Props) {
           autoCapitalize="none"
           keyboardType="email-address"
           autoComplete="email"
+          textContentType="emailAddress"
           placeholder="you@okelcor.com"
+          returnKeyType="next"
+          onSubmitEditing={() => passwordRef.current?.focus()}
+          blurOnSubmit={false}
         />
         <TextField
+          ref={passwordRef}
           label="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={!showPassword}
           autoComplete="password"
+          textContentType="password"
           placeholder="••••••••"
+          returnKeyType="done"
+          onSubmitEditing={() => void handleSubmit()}
+          rightElement={
+            <Pressable onPress={() => setShowPassword((v) => !v)} hitSlop={8}>
+              {showPassword ? <EyeOff size={18} color="#9ca3af" /> : <Eye size={18} color="#9ca3af" />}
+            </Pressable>
+          }
         />
 
         {error && <Text className="mb-4 text-center text-[14px] text-red-600">{error}</Text>}

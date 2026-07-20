@@ -169,6 +169,81 @@ export type AdminQuoteRequest = {
   created_at: string;
 };
 
+export type QuoteRequestItem = {
+  id: number;
+  brand?: string | null;
+  model?: string | null;
+  size?: string | null;
+  season?: string | null;
+  load_index?: string | null;
+  speed_index?: string | null;
+  condition?: string | null;
+  quantity: number;
+  unit_price?: number | null;
+  line_total?: number | null;
+  currency?: string | null;
+  notes?: string | null;
+};
+
+// Detail response (GET /admin/quote-requests/{id}) — much richer than the
+// list row above; not every field is populated depending on how the quote
+// was submitted (legacy tyre_size/quantity vs. modern tyre_items[]).
+export type AdminQuoteRequestFull = AdminQuoteRequest & {
+  contact_person?: string | null;
+  company_address?: string | null;
+  company_city?: string | null;
+  company_postal_code?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  business_type?: string | null;
+  vat_number?: string | null;
+  vat_valid?: boolean | null;
+
+  brand_preference?: string | null;
+  tyre_size?: string | null;
+  quantity?: number | null;
+  tyre_condition?: string | null;
+  used_tyre_grade?: string | null;
+  used_tyre_notes?: string | null;
+  tyre_items?: { size?: string; quantity?: number; brand?: string; condition?: string }[] | null;
+
+  budget_range?: string | null;
+  delivery_location?: string | null;
+  delivery_address?: string | null;
+  delivery_city?: string | null;
+  delivery_postal_code?: string | null;
+  delivery_timeline?: string | null;
+  incoterm?: string | null;
+  incoterm_type?: string | null;
+
+  notes?: string | null;
+  admin_notes?: string | null;
+
+  quote_items?: QuoteRequestItem[];
+  quote_items_count?: number;
+
+  proposal_status?: string | null;
+  proposal_number?: string | null;
+  proposal_total?: number | null;
+  proposal_currency?: string | null;
+
+  order_id?: number | null;
+  order_ref?: string | null;
+  possible_customer_id?: number | null;
+};
+
+export type QuoteRequestSummary = {
+  new_count?: number;
+  needs_review_count?: number;
+  qualified_count?: number;
+  proposal_sent_count?: number;
+  converted_count?: number;
+  spam_count?: number;
+  follow_up_due_count?: number;
+  unassigned_count?: number;
+  high_priority_count?: number;
+};
+
 // ── Security ──────────────────────────────────────────────────────────────────
 
 export type SecuritySummary = {

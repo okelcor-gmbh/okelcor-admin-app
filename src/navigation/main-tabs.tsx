@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BlurView } from "expo-blur";
 import { Home, Bell, Sparkles, Inbox, Package, FileText, ShieldAlert } from "lucide-react-native";
-import type { MainTabParamList, InboxStackParamList, OrdersStackParamList } from "./types";
+import type { MainTabParamList, InboxStackParamList, OrdersStackParamList, QuotesStackParamList } from "./types";
 import { useAuth } from "../context/auth-context";
 import { usePushRegistration } from "../hooks/usePushRegistration";
 import { useUnreadNotificationsCount } from "../hooks/useUnreadNotificationsCount";
@@ -19,12 +19,14 @@ import ThreadDetailScreen from "../screens/inbox/ThreadDetailScreen";
 import OrdersListScreen from "../screens/orders/OrdersListScreen";
 import OrderDetailScreen from "../screens/orders/OrderDetailScreen";
 import QuotesListScreen from "../screens/quotes/QuotesListScreen";
+import QuoteDetailScreen from "../screens/quotes/QuoteDetailScreen";
 import SecurityGlanceScreen from "../screens/security/SecurityGlanceScreen";
 import SettingsScreen from "../screens/settings/SettingsScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const InboxStack = createNativeStackNavigator<InboxStackParamList>();
 const OrdersStack = createNativeStackNavigator<OrdersStackParamList>();
+const QuotesStack = createNativeStackNavigator<QuotesStackParamList>();
 
 function InboxStackNavigator() {
   return (
@@ -56,6 +58,19 @@ function OrdersStackNavigator() {
   );
 }
 
+function QuotesStackNavigator() {
+  return (
+    <QuotesStack.Navigator>
+      <QuotesStack.Screen
+        name="QuotesList"
+        component={QuotesListScreen}
+        options={{ title: "Quotes", headerRight: () => <SettingsHeaderButton /> }}
+      />
+      <QuotesStack.Screen name="QuoteDetail" component={QuoteDetailScreen} options={{ title: "Quote" }} />
+    </QuotesStack.Navigator>
+  );
+}
+
 export default function MainTabs() {
   const { user } = useAuth();
   const scheme = useColorScheme();
@@ -70,8 +85,9 @@ export default function MainTabs() {
       screenOptions={{
         tabBarActiveTintColor: "#E85C1A",
         tabBarInactiveTintColor: scheme === "dark" ? "#71717a" : "#9ca3af",
-        tabBarLabelStyle: { fontSize: 9, fontWeight: "600", letterSpacing: -0.2 },
-        tabBarItemStyle: { paddingHorizontal: 0 },
+        tabBarLabelStyle: { fontSize: 9, fontWeight: "600", letterSpacing: -0.2, textAlign: "center" },
+        tabBarItemStyle: { paddingHorizontal: 2, alignItems: "center", justifyContent: "center" },
+        tabBarIconStyle: { marginTop: 2 },
         tabBarStyle: { borderTopWidth: 0, elevation: 0 },
         tabBarBackground: () => (
           <BlurView intensity={92} tint={scheme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFill} />
@@ -110,8 +126,8 @@ export default function MainTabs() {
       />
       <Tab.Screen
         name="QuotesTab"
-        component={QuotesListScreen}
-        options={{ title: "Quotes", tabBarIcon: ({ color, size }) => <FileText color={color} size={size} /> }}
+        component={QuotesStackNavigator}
+        options={{ title: "Quotes", headerShown: false, tabBarIcon: ({ color, size }) => <FileText color={color} size={size} /> }}
       />
       {canViewSecurity && (
         <Tab.Screen

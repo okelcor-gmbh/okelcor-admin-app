@@ -18,6 +18,11 @@ export type OrdersStackParamList = {
   OrderDetail: { orderId: number };
 };
 
+export type QuotesStackParamList = {
+  QuotesList: undefined;
+  QuoteDetail: { quoteId: number };
+};
+
 export type MainTabParamList = {
   TodayTab: undefined;
   NotificationsTab: undefined;
